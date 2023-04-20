@@ -13,9 +13,9 @@ def minesweeper_CSP(puzz):
                 if y is int:
                     vars.append("V_" + str(puzz.index(x)) + "_" + str(puzz.index(y)))
                     
-        return  vars.sorted()
+        return  vars.sort()
 
-    variaveis = vargenerator(puzz)
+    variaveis = list(vargenerator(puzz))
         
     # Definir Domínios
     # Devolve um dicionario com os domínios com as variáveis 
