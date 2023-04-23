@@ -3,6 +3,13 @@ V_1_1' = 1
 V_2_0' + 'V_2_1' + 'V_1_1' = 2
 'V_3_1' + 'V_4_2' + 'V_3_3' + 'V_2_2' + 'V_2_1' = 4
 """
+"""fazer uma função que receba A,a, B,b (as maiusculas são as variaveis das células 
+e as minusculas os valores que estão lá dentro), 
+verifique as contraints e devolva true se não violar nenhuma contraint"""
+
+"""dar isso tudo ao minesweeper_csp = CSP(variables, domains, neighbors, constraints) 
+mas deve ser meter num dic ou assim"""
+
 def minesweeper_CSP(puzz):
     #Definir Variáveis
     #definicao dos valores do puzzle são universais
@@ -35,4 +42,4 @@ def minesweeper_CSP(puzz):
     pass
 
 def show_domains(dom):
-    pass
+    return dom.dominios
