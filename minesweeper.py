@@ -1,3 +1,4 @@
+from csp import *
 """
 V_1_1' = 1
 V_2_0' + 'V_2_1' + 'V_1_1' = 2
@@ -13,6 +14,25 @@ mas deve ser meter num dic ou assim"""
 def minesweeper_CSP(puzz):
     #Definir Variáveis
     #definicao dos valores do puzzle são universais
+    def get_neighbors(grid, row, col):
+        """
+        Returns a list of neighboring elements of a grid element located at (row, col)
+        """
+        rows = len(grid)
+        cols = len(grid[0])
+        neighbors = []
+        
+        # Iterate over adjacent rows
+        for i in range(max(0, row-1), min(rows, row+2)):
+            # Iterate over adjacent columns
+            for j in range(max(0, col-1), min(cols, col+2)):
+                # Skip the center element
+                if i == row and j == col:
+                    continue
+                # Add the adjacent element to the list of neighbors
+                neighbors.append(grid[i][j])
+    
+        return neighbors
     def vargenerator(puzz):
         vars = []
         for x in puzz :
@@ -21,14 +41,25 @@ def minesweeper_CSP(puzz):
                     vars.append("V_" + str(puzz.index(x)) + "_" + str(puzz.index(y)))
                     
         return  vars.sort()
+    def neighgenerator(puzz):
+        neighbours = []
+        for x in puzz :
+            for y in x:
+                if y is int:
+                    neighbours.append(get_neighbors(puzz,x,y))
+                    
+        return  neighbors.sort()
+    
 
     variaveis = list(vargenerator(puzz))
+    neighbors = list(neighgenerator(puzz))
         
     # Definir Domínios
     # Devolve um dicionario com os domínios com as variáveis 
-    dominios_ABCdifs = {}
+    dominios = {}
     for v in variaveis :
-        dominios[v] = [1,2,3]
+        dominios[v] = [0,1,2,3,4,5,6,7,8,9]
+        
     
     #Definir Vizinhos
     #Cria o grafo de restrições com os arcos seguintes:
@@ -38,7 +69,7 @@ def minesweeper_CSP(puzz):
     vizinhos = parse_neighbors('A : B C; B: C')
 
         
-    return CSP(variaveis, dominios, vizinhos,different_values_constraint)
+    return CSP(variaveis, dominios, vizinhos,constraints)
     pass
 
 def show_domains(dom):
