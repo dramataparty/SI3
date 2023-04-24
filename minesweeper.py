@@ -14,31 +14,34 @@ mas deve ser meter num dic ou assim"""
 def minesweeper_CSP(puzz):
     #Definir Variáveis
     #definicao dos valores do puzzle são universais
-    def get_neighbors(grid, row, col):
+    def constraint_gen(grid, row, col):
         """
         Returns a list of neighboring elements of a grid element located at (row, col)
         """
         rows = len(grid)
         cols = len(grid[0])
         neighbors = []
-        
-        # Iterate over adjacent rows
-        for i in range(max(0, row-1), min(rows, row+2)):
-            # Iterate over adjacent columns
-            for j in range(max(0, col-1), min(cols, col+2)):
-                # Skip the center element
-                if i == row and j == col:
-                    continue
-                # Add the adjacent element to the list of neighbors
-                neighbors.append(grid[i][j])
-    
+        for i in range(len(puzz)):
+            for j in range(len(puzz[0])):
+                    if puzz[i][j]!=-1: 
+                        # Iterate over adjacent rows
+                        for i in range(max(0, row-1), min(rows, row+2)):
+                            # Iterate over adjacent columns
+                            for j in range(max(0, col-1), min(cols, col+2)):
+                                # Skip the center element
+                                if i == row and j == col:
+                                    continue
+                            # Add the adjacent element to the list of neighbors
+                            neighbors.append(grid[i][j])
+        csp.add_constraint(neighbors, lambda *values: sum(values) == puzz) 
+        solution = backtracking_search(csp)
         return neighbors
     def vargenerator(puzz):
         vars = []
         for x in puzz :
             for y in x:
                 if y is int:
-                    vars.append("V_" + str(puzz.index(x)) + "_" + str(puzz.index(y)))
+                    csp.add_variable("V_" + str(puzz.index(x)) + "_" + str(puzz.index(y)))
                     
         return  vars.sort()
     def neighgenerator(puzz):
@@ -52,22 +55,16 @@ def minesweeper_CSP(puzz):
     
 
     variaveis = list(vargenerator(puzz))
-    neighbors = list(neighgenerator(puzz))
+    vizinhos = list(neighgenerator(puzz))
         
     # Definir Domínios
     # Devolve um dicionario com os domínios com as variáveis 
-    dominios = {}
-    for v in variaveis :
-        dominios[v] = [0,1,2,3,4,5,6,7,8,9]
-        
-    
-    #Definir Vizinhos
-    #Cria o grafo de restrições com os arcos seguintes:
-    #A : B
-    #B : C
-    
-    vizinhos = parse_neighbors('A : B C; B: C')
-
+    def domaingen(puzz):
+        dominios = {}
+        for v in variaveis :
+            dominios[v] = [0,1,2,3,4,5,6,7,8,9]
+                   
+                
         
     return CSP(variaveis, dominios, vizinhos,constraints)
     pass
