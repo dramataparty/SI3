@@ -29,10 +29,11 @@ def minesweeper_CSP(puzz):
                             # Iterate over adjacent columns
                             for j in range(max(0, col-1), min(cols, col+2)):
                                 # Skip the center element
-                                if i == row and j == col:
-                                    continue
+                                if i != row and j != col:
+                                    neighbors.append(grid[i][j])
+                                    
                             # Add the adjacent element to the list of neighbors
-                            neighbors.append(grid[i][j])
+                            
         csp.add_constraint(neighbors, lambda *values: sum(values) == puzz) 
         solution = backtracking_search(csp)
         return neighbors
@@ -44,19 +45,11 @@ def minesweeper_CSP(puzz):
                     csp.add_variable("V_" + str(puzz.index(x)) + "_" + str(puzz.index(y)))
                     
         return  vars.sort()
-    def neighgenerator(puzz):
-        neighbours = []
-        for x in puzz :
-            for y in x:
-                if y is int:
-                    neighbours.append(get_neighbors(puzz,x,y))
-                    
-        return  neighbors.sort()
-    
 
     variaveis = list(vargenerator(puzz))
-    vizinhos = list(neighgenerator(puzz))
-        
+    constraints = list(constraint_gen(puzz))
+    vizinhos = {}
+    
     # Definir Domínios
     # Devolve um dicionario com os domínios com as variáveis 
     def domaingen(puzz):
