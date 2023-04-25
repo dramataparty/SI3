@@ -1,4 +1,6 @@
 from csp import *
+from p3_aux import *
+import csp
 """
 V_1_1' = 1
 V_2_0' + 'V_2_1' + 'V_1_1' = 2
@@ -14,53 +16,40 @@ mas deve ser meter num dic ou assim"""
 def minesweeper_CSP(puzz):
     #Definir Variáveis
     #definicao dos valores do puzzle são universais
-    def constraint_gen(grid, row, col):
-        """
-        Returns a list of neighboring elements of a grid element located at (row, col)
-        """
-        rows = len(grid)
-        cols = len(grid[0])
-        neighbors = []
-        for i in range(len(puzz)):
-            for j in range(len(puzz[0])):
-                    if puzz[i][j]!=-1: 
-                        # Iterate over adjacent rows
-                        for i in range(max(0, row-1), min(rows, row+2)):
-                            # Iterate over adjacent columns
-                            for j in range(max(0, col-1), min(cols, col+2)):
-                                # Skip the center element
-                                if i != row and j != col:
-                                    neighbors.append(grid[i][j])
-                                    
-                            # Add the adjacent element to the list of neighbors
-                            
-        csp.add_constraint(neighbors, lambda *values: sum(values) == puzz) 
-        solution = backtracking_search(csp)
-        return neighbors
-    def vargenerator(puzz):
-        vars = []
-        for x in puzz :
-            for y in x:
-                if y is int:
-                    csp.add_variable("V_" + str(puzz.index(x)) + "_" + str(puzz.index(y)))
-                    
-        return  vars.sort()
+   
+    variaveis=[]
+    for i in range(len(puzz)):
+        for j in range(len(puzz[i])):
+            varname = "V_{0}_{1}".format(i,j)
+            variaveis.append(varname)
 
-    variaveis = list(vargenerator(puzz))
-    constraints = list(constraint_gen(puzz))
-    vizinhos = {}
+    constraints = {}
+    dominios = []
     
-    # Definir Domínios
-    # Devolve um dicionario com os domínios com as variáveis 
-    def domaingen(puzz):
-        dominios = {}
-        for v in variaveis :
-            dominios[v] = [0,1,2,3,4,5,6,7,8,9]
-                   
-                
-        
-    return CSP(variaveis, dominios, vizinhos,constraints)
-    pass
+    vizinhos = {}
+    for v in variaveis :
+        for x in range(1):
+            dominios[v] = [0,1]
+                              
+    n = len(puzz)
+    m = len(puzz[i])
+    for i in range(n):
+            for j in range(m):
+                if puzz[i][j] != -1:  # cell is numbered
+                    neighbors = []
+                    for x in range(max(0, i-1), min(n, i+2)):
+                        for y in range(max(0, j-1), min(m, j+2)):
+                            if (x, y) != (i, j):
+                                neighbors.append((x, y))
+                    problem.addConstraint(ExactSumConstraint(1, neighbors), neighbors)
 
-def show_domains(dom):
-    return dom.dominios
+    # Solve the problem
+    solutions = problem.getSolutions()
+ 
+    return CSP(variaveis, dominios, vizinhos,constraints)
+
+def show_domains(doms):
+    sd = []
+    
+    return sd
+    
