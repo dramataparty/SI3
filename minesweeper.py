@@ -16,40 +16,45 @@ mas deve ser meter num dic ou assim"""
 def minesweeper_CSP(puzz):
     #Definir Variáveis
     #definicao dos valores do puzzle são universais
-   
+    r = len(puzz)
+    c = len(puzz[0])
+    offsets = [(-1, -1), (-1, 0), (-1, 1),
+               (0, -1),           (0, 1),
+               (1, -1),  (1, 0),  (1, 1)]
     variaveis=[]
-    for i in range(len(puzz)):
-        for j in range(len(puzz[i])):
-            varname = "V_{0}_{1}".format(i,j)
-            variaveis.append(varname)
+    for x in range(r):
+        for y in range(c):
+            for dx, dy in offsets:
+                nx, ny = x + dx, y + dy
+                if 0 <= nx < r and 0 <= ny < c and isinstance(puzz[nx][ny], int):
+                    varname = "V_{0}_{1}".format(x,y)
+                    variaveis.append(varname)
+                
+    variaveis = set(variaveis)
+    variaveis = list(variaveis)
+    variaveis.sort()
 
     constraints = {}
-    dominios = []
-    
+    dominios = {}
     vizinhos = {}
-    for v in variaveis :
-        for x in range(1):
-            dominios[v] = [0,1]
-                              
-    n = len(puzz)
-    m = len(puzz[i])
-    for i in range(n):
-            for j in range(m):
-                if puzz[i][j] != -1:  # cell is numbered
-                    neighbors = []
-                    for x in range(max(0, i-1), min(n, i+2)):
-                        for y in range(max(0, j-1), min(m, j+2)):
-                            if (x, y) != (i, j):
-                                neighbors.append((x, y))
-                    problem.addConstraint(ExactSumConstraint(1, neighbors), neighbors)
+    
+    def domain_gen(puzz):
+        bomb_positions = set()
+        for i in range(r):
+            for j in range(c):
+                # If the cell is not empty and the number of adjacent bombs is
+                # equal to the value in the cell, then all adjacent cells are bombs
+                if puzz[i][j] != 0 and puzz[i][j] == count_adjacent_bombs(puzz, i, j):
+                    for x, y in get_adjacent_cells(grid, i, j):
+                        if puzz[x][y] == -1:
+                            bomb_positions.add((x, y))
 
-    # Solve the problem
-    solutions = problem.getSolutions()
+    domain_gen(puzz)
+
+    def funct(a,A,b,B):
+        pass
+    def constraint_gen(puzz):
+        csp.add_constraint(neighbors, lambda *values: sum(values) == puzz[i][j]) 
+        
  
     return CSP(variaveis, dominios, vizinhos,constraints)
-
-def show_domains(doms):
-    sd = []
-    
-    return sd
-    
