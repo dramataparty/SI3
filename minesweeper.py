@@ -1,27 +1,16 @@
-from csp import *
-from p3_aux import *
-import csp
-"""
-V_1_1' = 1
-V_2_0' + 'V_2_1' + 'V_1_1' = 2
-'V_3_1' + 'V_4_2' + 'V_3_3' + 'V_2_2' + 'V_2_1' = 4
-"""
-"""fazer uma função que receba A,a, B,b (as maiusculas são as variaveis das células 
-e as minusculas os valores que estão lá dentro), 
-verifique as contraints e devolva true se não violar nenhuma contraint"""
+from csp import CSP
+import itertools
+from collections import defaultdict
 
-"""dar isso tudo ao minesweeper_csp = CSP(variables, domains, neighbors, constraints) 
-mas deve ser meter num dic ou assim"""
 
 def minesweeper_CSP(puzz):
-    #Definir Variáveis
-    #definicao dos valores do puzzle são universais
     r = len(puzz)
     c = len(puzz[0])
-    offsets = [(-1, -1), (-1, 0), (-1, 1),
-               (0, -1),           (0, 1),
-               (1, -1),  (1, 0),  (1, 1)]
+    offsets = [(0, 1), (1, 1), (1, 0), (1, -1), (0, -1), (-1, -1), (-1, 0), (-1, 1)]
     variaveis=[]
+    vizinhos = {}
+    coords = []
+    vizcoords = {}
     for x in range(r):
         for y in range(c):
             for dx, dy in offsets:
@@ -29,32 +18,86 @@ def minesweeper_CSP(puzz):
                 if 0 <= nx < r and 0 <= ny < c and isinstance(puzz[nx][ny], int):
                     varname = "V_{0}_{1}".format(x,y)
                     variaveis.append(varname)
-                
-    variaveis = set(variaveis)
-    variaveis = list(variaveis)
-    variaveis.sort()
-
-    constraints = {}
-    dominios = {}
-    vizinhos = {}
+                    coords.append((x,y))
+    for cr in coords:
+            row = cr[0]
+            col = cr[1]
+            vizs = []
+            cvizs =[]
+            varname = "V_{0}_{1}".format(row,col)
+           
+            if isinstance(puzz[row][col], int):
+                for r in range(row-1, row+2):
+                    for c in range(col-1, col+2):
+                        vizname = "V_{0}_{1}".format(r,c)
+                        if r < 0 or r >= len(puzz) or c < 0 or c >= len(puzz[0]):
+                            continue 
+                        if r == row and c == col:
+                            continue  
+                        if not isinstance(puzz[r][c], int):
+                            vizs.append(vizname)
+                            cvizs.append((r,c))
+            else:
+              
+                for r in range(row-1, row+2):
+                    for c in range(col-1, col+2):
+                        vizname = "V_{0}_{1}".format(r,c)
+                        if r < 0 or r >= len(puzz) or c < 0 or c >= len(puzz[0]):
+                            continue  
+                        if r == row and c == col:
+                            continue  
+                        if isinstance(puzz[r][c], int):
+                            vizs.append(vizname)
+                            cvizs.append((r,c))
+            vizs=set(vizs)
+            vizcoords.update({cr:cvizs})
+            vizinhos.update({varname:set(vizs)})
+    variaveis = sorted(set(variaveis))
     
-    def domain_gen(puzz):
-        bomb_positions = set()
-        for i in range(r):
-            for j in range(c):
-                # If the cell is not empty and the number of adjacent bombs is
-                # equal to the value in the cell, then all adjacent cells are bombs
-                if puzz[i][j] != 0 and puzz[i][j] == count_adjacent_bombs(puzz, i, j):
-                    for x, y in get_adjacent_cells(grid, i, j):
-                        if puzz[x][y] == -1:
-                            bomb_positions.add((x, y))
+    def minesweeper_constraint(a, A, b, B):
+        return A != B
 
-    domain_gen(puzz)
+    constraints = []
+    for var in vizinhos:
+        for viz in vizinhos[var]:
+            constraints.append((var, viz, minesweeper_constraint))
+            
+    dominios = {}
+    for cr in coords:
+        row = cr[0]
+        col = cr[1]
+        varname = "V_{0}_{1}".format(row,col)
+        bombs = list(itertools.product([0, 1], repeat=len(coords)))
+        valid_bombs = []
+        for bomb_comb in bombs:
+            valid = True
+            for i, coord in enumerate(tuples_list):
+                if bomb_comb[i] == 1 and grid[coord[0]][coord[1]] == 1:
+                    valid = False
+                    break
+            if valid:
+                valid_bombs.append(bomb_comb)
+        dominios[varname] = {bomb_comb} 
 
-    def funct(a,A,b,B):
-        pass
-    def constraint_gen(puzz):
-        csp.add_constraint(neighbors, lambda *values: sum(values) == puzz[i][j]) 
-        
- 
     return CSP(variaveis, dominios, vizinhos,constraints)
+
+def show_domains(dom):
+    vardoms = []
+    for i in dom:
+        for j in i:
+            vardoms.append((i,j))
+    return vardoms
+
+from copy import deepcopy 
+def fill_puzzle(puzzle,sol):
+    copia=deepcopy(puzzle)
+    for s in sol:
+        if isinstance(sol[s],int):
+            xy=s.split('_')
+            x=int(xy[1])
+            y=int(xy[2])
+            copia[y][x]='@' if sol[s] else '~'
+    return copia
+        
+    
+    
